@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using uzakbaglantiAPI.Context;
 using uzakbaglantiAPI.Entities;
 using uzakbaglantiAPI.Model;
+using uzakbaglantiAPI.Repositories.Interfaces;
 
 namespace uzakbaglantiAPI.Controllers
 {
@@ -13,11 +14,11 @@ namespace uzakbaglantiAPI.Controllers
     [Route("[controller]")]
     public class BaglantiController : ControllerBase
     {
-        private readonly uzakContext _context;
+        private readonly IBaglantiRepository _baglantiRepo;
 
-        public BaglantiController(uzakContext context)
+        public BaglantiController(IBaglantiRepository baglantiRepo)
         {
-            _context = context;
+            _baglantiRepo = baglantiRepo;
         }
 
 
@@ -30,7 +31,7 @@ namespace uzakbaglantiAPI.Controllers
 
             try
             {
-                var list = await _context.Baglanti.AsNoTracking().ToListAsync();
+                var list = _baglantiRepo.AllBaglantiList();
 
                 return Ok(list);
             }
@@ -49,31 +50,8 @@ namespace uzakbaglantiAPI.Controllers
         {
             try
             {
-                if (ModelState.IsValid)
-                {
-                    if (model != null)
-                    {
-
-                        Baglanti b = new Baglanti();
-
-                        b.sirketAd = model.sirketAd;
-                        b.baglantiAd = model.baglantiAd;
-                        b.baglantiId = model.baglantiId;
-                        b.baglantiSifre = model.baglantiSifre;
-                        b.yetkiliAd = model.yetkiliAd;
-                        b.yetkiliTel = model.yetkiliTel;
-
-                        _context.Baglanti.Add(b);
-                        await _context.SaveChangesAsync();
-                    }
-
-                    return Ok(model);
-
-                }
-                else
-                {
-
-                }
+                _baglantiRepo.baglantiCreate(model);
+                return Ok(model);
             }
             catch (Exception ex)
             {
@@ -91,25 +69,45 @@ namespace uzakbaglantiAPI.Controllers
 
 
 
-        [HttpDelete("Delete") ]
-        public async Task<IActionResult> Delete(int id )
+        [HttpGet("Getbaglanti")]
+        public async Task<IActionResult> Getbaglanti(int id)
         {
             try
             {
 
-                var uzak = await _context.Baglanti.FindAsync(id);
-                if (uzak!=null)
+                var baglanti = _baglantiRepo.GetBaglantiById(id);
+                return Ok(baglanti);
+            }
+            catch (Exception)
+            {
+
+
+            }
+            return Ok();
+        }
+
+
+
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+
+                var baglanti = _baglantiRepo.GetBaglantiById(id);
+                if (baglanti == null)
                 {
-                    _context.Baglanti.Remove(uzak);
-                   await _context.SaveChangesAsync();
-                    return Ok("Başarıyla Silindi...");
+                    return NotFound();
+
                 }
                 else
                 {
-                    return Ok("Uzak Bağlantı Bulunamadı....!");
+                    _baglantiRepo.baglantiDelete(id);
+                    return Ok("Başarıyla Silindi...");
                 }
 
-               
+
             }
             catch (Exception ex)
             {
@@ -120,6 +118,9 @@ namespace uzakbaglantiAPI.Controllers
             return Ok();
 
         }
+
+
+
 
 
     }

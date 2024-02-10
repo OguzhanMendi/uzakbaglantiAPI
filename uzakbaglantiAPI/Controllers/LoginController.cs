@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using uzakbaglantiAPI.Context;
 using uzakbaglantiAPI.Model;
+using uzakbaglantiAPI.Repositories.Interfaces;
 
 namespace uzakbaglantiAPI.Controllers
 {
@@ -12,11 +13,11 @@ namespace uzakbaglantiAPI.Controllers
     [Route("[controller]")]
     public class LoginController : ControllerBase
     {
-        private readonly uzakContext _context;
+        private readonly ILoginRepository _loginRepository;
 
-        public LoginController(uzakContext context)
+        public LoginController(ILoginRepository loginRepository)
         {
-            _context = context;
+            _loginRepository = loginRepository;
         }
 
         [HttpPost("login")]
@@ -24,15 +25,15 @@ namespace uzakbaglantiAPI.Controllers
         {
             // Kullanıcı kimlik bilgilerini kontrol et, örneğin bir veritabanından kontrol edebilirsiniz
 
+            var kul = _loginRepository.kullaniciVarMi(model.ad,model.sifre);
 
-            if (_context.kullanici.Any(a=>a.ad==model.ad && a.sifre==model.sifre))
+            if (kul!=null)
             {
-                // Token üret
                 var token = GenerateJwtToken(model.ad);
                 var response = new
                 {
                     ad = model.ad,
-                    token =  token 
+                    token = token
                 };
                 return Ok(response);
             }
@@ -40,6 +41,9 @@ namespace uzakbaglantiAPI.Controllers
             {
                 return Unauthorized();
             }
+                // Token üret
+              
+           
         }
 
 

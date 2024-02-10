@@ -3,6 +3,8 @@ using uzakbaglantiAPI.Context;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using uzakbaglantiAPI.Repositories.Interfaces;
+using uzakbaglantiAPI.Repositories.Abstract;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -28,10 +30,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-builder.Services.AddDbContext<uzakContext>(opt =>
-{
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlCon"));
-});
+//builder.Services.AddDbContext<uzakContext>(opt =>
+//{
+//    opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlCon"));
+//});
+
+builder.Services.AddSingleton<uzakContext>();
+
+builder.Services.AddScoped<IBaglantiRepository,BaglantiRepository>();
+builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 
 
 
