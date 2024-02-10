@@ -1,0 +1,6 @@
+@uzakbaglantiAPI_HostAddress = http://localhost:5245
+
+GET {{uzakbaglantiAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
